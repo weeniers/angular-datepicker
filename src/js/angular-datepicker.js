@@ -136,7 +136,7 @@
 
       return toReturn.join('');
     }
-    , datepickerDirective = function datepickerDirective($window, $compile, $locale, $filter, $interpolate) {
+    , datepickerDirective = function datepickerDirective($rootScope, $window, $compile, $locale, $filter, $interpolate) {
 
       var linkingFunction = function linkingFunction($scope, element, attr) {
 
@@ -151,7 +151,7 @@
           , dateFormat = attr.dateFormat
           //, dateMinLimit
           //, dateMaxLimit
-          , dateDisabledDates = $scope.$eval($scope.dateDisabledDates)
+          , dateDisabledDates = $scope.dateDisabledDates//= $scope.$eval($scope.dateDisabledDates)
           , date = new Date()
           , isMouseOn = false
           , isMouseOnInput = false
@@ -357,6 +357,12 @@
               //attach previous month days
               $scope.nextMonthDays = nextMonthDays;
             }
+
+            $rootScope.$broadcast('720kb.datepicker:daysInMonth', {
+              'month': month, 
+              'year': year, 
+              'days': $scope.days
+            });
           }
           , unregisterDataSetWatcher = $scope.$watch('dateSet', function dateSetWatcher(newValue) {
 
@@ -639,12 +645,11 @@
         $scope.isSelectableDate = function isSelectableDate(monthNumber, year, day) {
           var i = 0;
 
-          if (dateDisabledDates &&
-            dateDisabledDates.length > 0) {
+          if ($scope.dateDisabledDates &&
+            $scope.dateDisabledDates.length > 0) {
 
-            for (i; i <= dateDisabledDates.length; i += 1) {
-
-              if (new Date(dateDisabledDates[i]).getTime() === new Date(monthNumber + '/' + day + '/' + year).getTime()) {
+            for (i; i <= $scope.dateDisabledDates.length; i += 1) {
+              if (new Date($scope.dateDisabledDates[i]).getTime() === new Date(monthNumber + '/' + day + '/' + year).getTime()) {
 
                 return false;
               }
@@ -835,6 +840,14 @@
           angular.element(theCalendar).off('mouseenter mouseleave focusin');
           angular.element($window).off('click focus focusin', onClickOnWindow);
         });
+
+        $scope.$on('720kb.datepicker:getDates', function getDates() {
+          $rootScope.$broadcast('720kb.datepicker:daysInMonth', {
+            'month': $scope.monthNumber, 
+            'year': $scope.year, 
+            'days': $scope.days
+          });
+        });
       };
 
       return {
@@ -847,7 +860,7 @@
           'dateYearTitle': '@',
           'buttonNextTitle': '@',
           'buttonPrevTitle': '@',
-          'dateDisabledDates': '@',
+          'dateDisabledDates': '=',
           'dateSetHidden': '@',
           'dateTyper': '@',
           'dateWeekStartDay': '@',
@@ -861,5 +874,5 @@
     };
 
   angular.module('720kb.datepicker', [])
-               .directive('datepicker', ['$window', '$compile', '$locale', '$filter', '$interpolate', datepickerDirective]);
+               .directive('datepicker', ['$rootScope', '$window', '$compile', '$locale', '$filter', '$interpolate', datepickerDirective]);
 }(angular, navigator));
