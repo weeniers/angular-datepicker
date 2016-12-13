@@ -151,7 +151,7 @@
           , dateFormat = attr.dateFormat
           //, dateMinLimit
           //, dateMaxLimit
-          , dateDisabledDates = $scope.dateDisabledDates//= $scope.$eval($scope.dateDisabledDates)
+          //, dateDisabledDates = $scope.dateDisabledDates//= $scope.$eval($scope.dateDisabledDates)
           , date = new Date()
           , isMouseOn = false
           , isMouseOnInput = false
