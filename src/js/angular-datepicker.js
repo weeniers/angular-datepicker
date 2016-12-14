@@ -882,7 +882,7 @@
         });
 
         $scope.selectWeek = function selectWeek(week) {
-            $rootScope.$broadcast('720kb.datepicker:selectWeek', week);
+          $rootScope.$broadcast('720kb.datepicker:selectWeek', week);
         };
       };
 
