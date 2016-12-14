@@ -100,19 +100,37 @@
     }
     , generateDays = function generateDays() {
 
-      return [
-        '<div class="_720kb-datepicker-calendar-body">',
-          '<a href="javascript:void(0)" ng-repeat="px in prevMonthDays" class="_720kb-datepicker-calendar-day _720kb-datepicker-disabled">',
-            '{{px}}',
-          '</a>',
-          '<a href="javascript:void(0)" ng-repeat="item in days" ng-click="setDatepickerDay(item)" ng-class="{\'_720kb-datepicker-active\': day === item, \'_720kb-datepicker-disabled\': !isSelectableMinDate(year + \'/\' + monthNumber + \'/\' + item ) || !isSelectableMaxDate(year + \'/\' + monthNumber + \'/\' + item) || !isSelectableDate(monthNumber, year, item)}" class="_720kb-datepicker-calendar-day">',
-            '{{item}}',
-          '</a>',
-          '<a href="javascript:void(0)" ng-repeat="nx in nextMonthDays" class="_720kb-datepicker-calendar-day _720kb-datepicker-disabled">',
-            '{{nx}}',
-          '</a>',
-        '</div>'
-      ];
+        return [
+            '<div class="_720kb-datepicker-calendar-body">',
+                '<span ng-repeat="week in daysWeek track by $index">',
+                    '<a href="javascript:void(0)" ng-repeat="item in week" ng-click="setDatepickerDay(item)" ng-class="{\'_720kb-datepicker-active\': day === item.value, \'_720kb-datepicker-disabled\': item.isPrev || item.isNext || !isSelectableMinDate(year + \'/\' + monthNumber + \'/\' + item ) || !isSelectableMaxDate(year + \'/\' + monthNumber + \'/\' + item) || !isSelectableDate(monthNumber, year, item)}" class="_720kb-datepicker-calendar-day">',
+                        '{{item.value}}',
+                    '</a>',
+                '</span>',
+            '</div>'
+        ];
+
+      //return [
+      //  '<div class="_720kb-datepicker-calendar-body">',
+      //    '<span ng-repeat="pxw in prevMonthDaysWeek track by $index">',
+      //      '<a href="javascript:void(0)" ng-repeat="px in pxw" class="_720kb-datepicker-calendar-day _720kb-datepicker-disabled">',
+      //        '{{px}}',
+      //      '</a>',
+      //    '</span>',
+
+      //    '<span ng-repeat="dw in daysWeek track by $index">',
+      //      '<a href="javascript:void(0)" ng-repeat="d in dw" ng-click="setDatepickerDay(item)" ng-class="{\'_720kb-datepicker-active\': day === item, \'_720kb-datepicker-disabled\': !isSelectableMinDate(year + \'/\' + monthNumber + \'/\' + item ) || !isSelectableMaxDate(year + \'/\' + monthNumber + \'/\' + item) || !isSelectableDate(monthNumber, year, item)}" class="_720kb-datepicker-calendar-day">',
+      //        '{{d}}',
+      //      '</a>',
+      //    '</span>',
+
+      //    '<span ng-repeat="nw in nextMonthDaysWeek track by $index">',
+      //      '<a href="javascript:void(0)" ng-repeat="nx in nw" class="_720kb-datepicker-calendar-day _720kb-datepicker-disabled">',
+      //        '{{nx}}',
+      //      '</a>',
+      //    '</span>',
+      //  '</div>'
+      //];
     }
     , generateHtmlTemplate = function generateHtmlTemplate(prevButton, nextButton) {
 
@@ -358,6 +376,41 @@
               $scope.nextMonthDays = nextMonthDays;
             }
 
+            $scope.daysWeek = [[]];
+
+            for (i = 0; i < $scope.prevMonthDays.length; i += 1) {
+                if ($scope.daysWeek[$scope.daysWeek.length - 1].length === 7) {
+                    $scope.daysWeek.push([]);
+                }
+
+                $scope.daysWeek[$scope.daysWeek.length - 1].push({
+                    'value': $scope.prevMonthDays[i],
+                    'isPrev': true
+                });
+            }
+
+            for (i = 0; i < $scope.days.length; i += 1) {
+                if ($scope.daysWeek[$scope.daysWeek.length - 1].length === 7) {
+                    $scope.daysWeek.push([]);
+                }
+
+                $scope.daysWeek[$scope.daysWeek.length - 1].push({
+                    'value': $scope.days[i],
+                    'isCurrent': true
+                });
+            }
+
+            for (i = 0; i < $scope.nextMonthDays.length; i += 1) {
+                if ($scope.daysWeek[$scope.daysWeek.length - 1].length === 7) {
+                    $scope.daysWeek.push([]);
+                }
+
+                $scope.daysWeek[$scope.daysWeek.length - 1].push({
+                    'value': $scope.nextMonthDays[i],
+                    'isNext': true
+                });
+            }
+
             $rootScope.$broadcast('720kb.datepicker:daysInMonth', {
               'month': month, 
               'year': year, 
@@ -533,6 +586,7 @@
         };
 
         $scope.setDatepickerDay = function setDatepickerDay(day) {
+          day = day.value;
 
           if ($scope.isSelectableDate($scope.monthNumber, $scope.year, day) &&
               $scope.isSelectableMaxDate($scope.year + '/' + $scope.monthNumber + '/' + day) &&
